@@ -43,7 +43,7 @@
 <body>
   <div id="root"></div>
   <script type="text/babel">
-    const { useEffect, useRef, useState, useCallback } = React;
+    const { useEffect, useRef, useState, useCallback, forwardRef } = React;
     gsap.registerPlugin(ScrollTrigger);
     /* ── Sostituisci con il data:image/png;base64,... completo dal file scaricato ── */
     const FLOWERS = "data:image/png;base64,iVBORw0KGgo...";
@@ -80,16 +80,16 @@
       );
     }
     /* ─────────────────── Monogram ─────────────────── */
-    function Monogram() {
+    const Monogram = forwardRef((props, ref) => {
       return (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden" aria-hidden="true">
-          <span className="font-serif italic font-light leading-none"
-            style={{ fontSize: "clamp(18rem,40vw,32rem)", color: "#A3B899", opacity: 0.055, letterSpacing: "-0.02em", userSelect: "none" }}>
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden" aria-hidden="true" style={{ zIndex: 1 }}>
+          <span ref={ref} className="font-serif italic font-light leading-none"
+            style={{ fontSize: "clamp(18rem,40vw,32rem)", color: "#A3B899", opacity: 0.8, transform: "scale(1.05)", letterSpacing: "-0.02em", userSelect: "none", willChange: "opacity, transform" }}>
             D&amp;L
           </span>
         </div>
       );
-    }
+    });
     /* ─────────────────── Countdown ─────────────────── */
     function Countdown() {
       const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -432,20 +432,24 @@
     /* ─────────────────── App ─────────────────── */
     function App() {
       const videoRef        = useRef(null);
-      const clickAreaRef    = useRef(null);
-      const tapHintRef      = useRef(null);
       const textSaveRef     = useRef(null);
       const textSposiamoRef = useRef(null);
       const preloaderRef    = useRef(null);
       const mainContentRef  = useRef(null);
       const heroTextRef     = useRef(null);
+      const monogramRef     = useRef(null);
       const bgAudioRef      = useRef(null);
       const sequenceStarted = useRef(false);
       const [preloaderHidden, setPreloaderHidden] = useState(false);
       const [musicPlaying, setMusicPlaying]       = useState(false);
+      
       useEffect(() => {
         const video = videoRef.current;
         if (!video) return;
+        
+        // Avvia il video automaticamente
+        video.play().catch(e => console.log("L'autoplay del video potrebbe essere bloccato dal browser:", e));
+
         const onTime = () => {
           if (video.currentTime >= 2 && !sequenceStarted.current) {
             sequenceStarted.current = true;
@@ -455,6 +459,23 @@
         video.addEventListener("timeupdate", onTime);
         return () => video.removeEventListener("timeupdate", onTime);
       }, []);
+
+      // Effetto per avviare la musica al primo tocco o scroll (necessario per i blocchi autoplay dei browser)
+      useEffect(() => {
+        const handleFirstInteraction = () => {
+          if (bgAudioRef.current && bgAudioRef.current.paused) {
+             startMusic();
+          }
+          ['click', 'touchstart', 'scroll'].forEach(evt => window.removeEventListener(evt, handleFirstInteraction));
+        };
+        
+        ['click', 'touchstart', 'scroll'].forEach(evt => window.addEventListener(evt, handleFirstInteraction, { once: true }));
+        
+        return () => {
+          ['click', 'touchstart', 'scroll'].forEach(evt => window.removeEventListener(evt, handleFirstInteraction));
+        };
+      }, []);
+      
       useEffect(() => {
         if (!preloaderHidden) return;
         document.querySelectorAll(".stagger-group").forEach(group => {
@@ -469,10 +490,11 @@
           gsap.fromTo(el, { opacity: 0, scale: 0.97 }, { opacity: 1, scale: 1, duration: 1.4, ease: "power3.out", scrollTrigger: { trigger: el, start: "top 88%" } }));
         ScrollTrigger.refresh();
       }, [preloaderHidden]);
+      
       function runCinematicSequence() {
         const tl = gsap.timeline();
         tl
-          .to([videoRef.current, clickAreaRef.current], { opacity: 0, duration: 1, ease: "power2.inOut" })
+          .to(videoRef.current, { opacity: 0, duration: 1, ease: "power2.inOut" })
           .set(textSaveRef.current, { display: "flex" })
           .to(textSaveRef.current, { opacity: 1, duration: 1.2 })
           .to(textSaveRef.current, { opacity: 0, duration: 0.8, delay: 1.5 })
@@ -487,38 +509,32 @@
             setPreloaderHidden(true);
           }})
           .to(mainContentRef.current, { opacity: 1, duration: 1 }, "-=1")
+          /* Effetto Filigrana Monogramma: attende 1.7 sec poi riduce opacità e scala */
+          .to(monogramRef.current, { opacity: 0.055, scale: 1, duration: 1.5, ease: "power2.inOut" }, "+=1.7")
           .to(heroTextRef.current, { opacity: 1, y: 0, duration: 1.5, ease: "power3.out" }, "-=0.5");
       }
+      
       function startMusic() {
         const a = bgAudioRef.current;
         if (!a) return;
         a.volume = 0.25; a.loop = true;
         a.play().then(() => setMusicPlaying(true)).catch(() => {});
       }
+      
       function toggleMusic() {
         const a = bgAudioRef.current;
         if (!a) return;
         if (musicPlaying) { a.pause(); setMusicPlaying(false); }
         else { a.play().then(() => setMusicPlaying(true)).catch(() => {}); }
       }
-      function handleClick() {
-        if (tapHintRef.current) gsap.to(tapHintRef.current, { opacity: 0, duration: 0.3 });
-        videoRef.current && videoRef.current.play().catch(() => {});
-        startMusic();
-      }
+      
       return (
         <>
           <audio ref={bgAudioRef} src={MUSIC_URL} preload="auto" />
           {/* ════ PRELOADER ════ */}
           <div ref={preloaderRef} className="fixed inset-0 z-[200] flex items-center justify-center overflow-hidden"
             style={{ backgroundColor: "#FDFBF7" }}>
-            <div ref={clickAreaRef} onClick={handleClick}
-              className="absolute inset-0 z-[210] cursor-pointer flex items-center justify-center">
-              <p ref={tapHintRef} className="font-serif italic opacity-40 text-sm" style={{ color: "#A3B899" }}>
-                Tocca per aprire l'invito
-              </p>
-            </div>
-            <video ref={videoRef} muted playsInline preload="auto" className="absolute inset-0 w-full h-full object-cover">
+            <video ref={videoRef} autoPlay muted playsInline preload="auto" className="absolute inset-0 w-full h-full object-cover">
               <source src={VIDEO_URL} />
             </video>
             {/* Save The Date */}
@@ -558,7 +574,7 @@
           <div ref={mainContentRef} className="opacity-0 overflow-x-hidden" style={{ backgroundColor:"#FDFBF7" }}>
             {/* HERO */}
             <section className="relative h-screen w-full flex items-center justify-center overflow-hidden" style={{ backgroundColor:"#FDFBF7" }}>
-              <Monogram />
+              <Monogram ref={monogramRef} />
               <img src={FLOWERS} aria-hidden="true" className="absolute pointer-events-none select-none"
                 style={{ top:"-8%", right:"-8%", width:"clamp(280px,42vw,560px)", opacity:0.92, zIndex:1 }} />
               <img src={FLOWERS} aria-hidden="true" className="absolute pointer-events-none select-none"
