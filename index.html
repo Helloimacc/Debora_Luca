@@ -52,9 +52,7 @@
     
     const MUSIC_URL = "https://res.cloudinary.com/dvjgznbzm/video/upload/v1774795778/paulyudin-romantic-piano-164822_ytzzn3.mp3";
     const VIDEO_URL = "https://res.cloudinary.com/dvjgznbzm/video/upload/f_auto,q_auto/v1774820579/busta_verde_pastello_con_data_debossing_lzadff.mp4";
-    /* Aggiunto so_0 per prendere il primissimo frame del video senza busta mezza aperta */
     const VIDEO_POSTER = "https://res.cloudinary.com/dvjgznbzm/video/upload/so_0,f_auto,q_auto/v1774820579/busta_verde_pastello_con_data_debossing_lzadff.jpg";
-    /* Link del video corretto (festa notturna) */
     const WATERMARK_VIDEO_URL = "https://res.cloudinary.com/dvjgznbzm/video/upload/v1775240241/1_Modifica_video_matrimonio_festa_notturna_online-video-cutter.com_d01pfq.mp4";
     const PHOTOS = [
       "https://res.cloudinary.com/dvjgznbzm/image/upload/f_auto,q_auto,w_1400/v1774796845/IMG_4307_withcw.jpg",
@@ -92,7 +90,6 @@
     const VideoWatermark = forwardRef(({ videoRef }, ref) => {
       return (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden" aria-hidden="true" style={{ zIndex: 0 }}>
-          {/* Il contenitore ha overflow-hidden e bordi tondi, mentre il video all'interno fa un leggero scale(1.08) per nascondere i bordi. */}
           <div ref={ref} className="relative w-[80vw] sm:w-[50vw] max-w-md rounded-[1.5rem] overflow-hidden" style={{ opacity: 0, willChange: "opacity" }}>
             <video ref={videoRef} autoPlay={true} loop={true} muted={true} playsInline={true} className="w-full h-auto pointer-events-none select-none" style={{ mixBlendMode: "multiply", filter: "contrast(1.05)", transform: "scale(1.08)" }}>
               <source src={WATERMARK_VIDEO_URL} type="video/mp4" />
@@ -468,7 +465,7 @@
       const preloaderRef    = useRef(null);
       const mainContentRef  = useRef(null);
       const heroTextRef     = useRef(null);
-      const scrollArrowRef  = useRef(null); // Nuovo riferimento per l'animazione della freccia
+      const scrollArrowRef  = useRef(null);
       const monogramRef     = useRef(null);
       const watermarkRef    = useRef(null);
       const watermarkVideoRef = useRef(null);
@@ -613,7 +610,8 @@
               <div className="absolute left-1/2 top-0 w-px h-24" style={{ backgroundColor:"#A3B899", opacity:0.4, transform:"translateX(-50%)" }} />
               <div className="absolute left-1/2 bottom-0 w-px h-24" style={{ backgroundColor:"#A3B899", opacity:0.4, transform:"translateX(-50%)" }} />
               
-              <div ref={heroTextRef} className="absolute inset-0 flex flex-col justify-between pt-[10vh] md:pt-[12vh] pb-[16vh] px-6 text-center opacity-0 pointer-events-none" style={{ transform:"translateY(40px)", zIndex:2 }}>
+              {/* Contenitore principale modificato: pt aumentato dal 10% al 18% per spostare "Debora & Luca" più in giù */}
+              <div ref={heroTextRef} className="absolute inset-0 flex flex-col justify-between pt-[18vh] md:pt-[20vh] pb-[16vh] px-6 text-center opacity-0 pointer-events-none" style={{ transform:"translateY(40px)", zIndex:2 }}>
                 
                 <div>
                   <h1 className="font-serif text-5xl md:text-7xl font-normal leading-none" style={{ color:"#7a9070", textShadow: "0 4px 20px rgba(253, 251, 247, 0.6)" }}>
@@ -631,7 +629,6 @@
                 
               </div>
               
-              {/* Animata l'entrata della freccia con GSAP (inizialmente invisible e opacity 0) */}
               <div ref={scrollArrowRef} className="absolute inset-x-0 bottom-8 z-[3] invisible opacity-0 pointer-events-none">
                 <div className="mx-auto flex flex-col items-center gap-3 cursor-pointer pointer-events-auto w-max"
                   onClick={() => window.scrollBy({ top: window.innerHeight, behavior: 'smooth' })}
@@ -726,7 +723,5 @@
   </script>
 </body>
 </html>
-
-
 
 
