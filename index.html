@@ -646,14 +646,13 @@
                 <h2 className="font-serif italic text-6xl md:text-8xl" style={{ color:"#7a9070" }}>Ci Sposiamo!</h2>
               </div>
 
-              {/* Nuova Cornice Floreale per Hero Section */}
-              <div ref={heroFrameRef} className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0" style={{ zIndex: 1, transform: 'scale(0.95)', willChange: 'opacity, transform' }}>
+              {/* Nuova Cornice Floreale spostata nel suo contenitore con mix-blend-mode */}
+              <div ref={heroFrameRef} className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0" style={{ zIndex: 1, transform: 'scale(0.95)', mixBlendMode: 'multiply', willChange: 'opacity, transform' }}>
                 <img 
                   src={HERO_FRAME} 
                   alt="" 
                   className="w-full h-full object-cover md:object-contain" 
                   style={{ 
-                    mixBlendMode: "multiply",
                     WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)",
                     maskImage: "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)"
                   }} 
@@ -769,6 +768,7 @@
             
           </div>
           
+          <MusicPlayer playing={musicPlaying} onToggle={toggleMusic} />
         </>
       );
     }
