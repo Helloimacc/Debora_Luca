@@ -47,7 +47,6 @@
     gsap.registerPlugin(ScrollTrigger);
     
     /* ── IMMAGINE FIORI: Al momento è un pixel trasparente per non far apparire i "?" su Safari ── */
-    /* ── Sostituisci questo contenuto tra i backtick ( ` ) con il tuo data:image completo ── */
     const FLOWERS = `data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7`;
     
     const MUSIC_URL = "https://res.cloudinary.com/dvjgznbzm/video/upload/v1774795778/paulyudin-romantic-piano-164822_ytzzn3.mp3";
@@ -158,18 +157,22 @@
     /* ─────────────────── MusicPlayer ─────────────────── */
     function MusicPlayer({ playing, onToggle }) {
       return (
-        <button onClick={onToggle} title={playing ? "Pausa" : "Riproduci"}
+        <button onClick={onToggle} title={playing ? "Disattiva audio" : "Attiva audio"}
           className="fixed bottom-6 right-6 z-50 flex items-center justify-center rounded-full shadow-md transition-all"
           style={{ width: 44, height: 44, backgroundColor: "#FDFBF7", border: "1px solid #A3B899", color: "#7a9070" }}
           onMouseEnter={e => { e.currentTarget.style.backgroundColor="#A3B899"; e.currentTarget.style.color="#FDFBF7"; }}
           onMouseLeave={e => { e.currentTarget.style.backgroundColor="#FDFBF7"; e.currentTarget.style.color="#7a9070"; }}>
           {playing ? (
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
-              <rect x="2" y="1" width="4" height="12" rx="1"/><rect x="8" y="1" width="4" height="12" rx="1"/>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
             </svg>
           ) : (
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
-              <path d="M3 1.5 L12 7 L3 12.5 Z"/>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <line x1="23" y1="9" x2="17" y2="15"></line>
+              <line x1="17" y1="9" x2="23" y2="15"></line>
             </svg>
           )}
         </button>
@@ -379,7 +382,7 @@
             </div>
           </section>
           
-          {/* Immagine Party finale a tutto schermo (edge-to-edge) con sfumatura sopra e sotto */}
+          {/* Immagine Party finale a tutto schermo con sfumatura */}
           <div className="w-full reveal overflow-hidden flex justify-center items-end mt-4">
              <img src={PARTY_IMG} alt="Party e balli" className="w-full h-auto block" style={{ 
                mixBlendMode: 'multiply', 
@@ -494,6 +497,21 @@
       const [preloaderHidden, setPreloaderHidden] = useState(false);
       const [musicPlaying, setMusicPlaying]       = useState(false);
       
+      /* Stop music on background/lock screen */
+      useEffect(() => {
+        const handleVisibilityChange = () => {
+          const a = bgAudioRef.current;
+          if (!a) return;
+          if (document.hidden) {
+            a.pause();
+          } else if (musicPlaying) {
+            a.play().catch(() => {});
+          }
+        };
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+        return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+      }, [musicPlaying]);
+
       useEffect(() => {
         const video = videoRef.current;
         if (!video) return;
@@ -601,6 +619,7 @@
             {/* L'area cliccabile invisibile che copre tutto e fa partire il video */}
             <div ref={clickAreaRef} onClick={handleClick} className="absolute inset-0 z-[210] cursor-pointer" />
             
+            {/* Usiamo object-contain per evitare che la busta venga tagliata su schermi alti, e diminuiamo ulteriormente lo scale */}
             <video ref={videoRef} muted={true} playsInline={true} preload="auto" poster={VIDEO_POSTER} 
               className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none" style={{ transform: "scale(1.15)", transformOrigin: "center" }}>
               <source src={VIDEO_URL} type="video/mp4" />
@@ -628,6 +647,7 @@
               <div className="absolute left-1/2 top-0 w-px h-24" style={{ backgroundColor:"#A3B899", opacity:0.4, transform:"translateX(-50%)" }} />
               <div className="absolute left-1/2 bottom-0 w-px h-24" style={{ backgroundColor:"#A3B899", opacity:0.4, transform:"translateX(-50%)" }} />
               
+              {/* Contenitore principale modificato: pt aumentato dal 10% al 18% per spostare "Debora & Luca" più in giù */}
               <div ref={heroTextRef} className="absolute inset-0 flex flex-col justify-between pt-[18vh] md:pt-[20vh] pb-[16vh] px-6 text-center opacity-0 pointer-events-none" style={{ transform:"translateY(40px)", zIndex:2 }}>
                 
                 <div>
@@ -747,6 +767,5 @@
   </script>
 </body>
 </html>
-
 
 
