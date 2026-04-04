@@ -52,12 +52,12 @@
     
     const MUSIC_URL = "https://res.cloudinary.com/dvjgznbzm/video/upload/v1774795778/paulyudin-romantic-piano-164822_ytzzn3.mp3";
     const VIDEO_URL = "https://res.cloudinary.com/dvjgznbzm/video/upload/f_auto,q_auto/v1774820579/busta_verde_pastello_con_data_debossing_lzadff.mp4";
-    /* Aggiunto so_0 per prendere il primissimo frame del video senza busta mezza aperta */
     const VIDEO_POSTER = "https://res.cloudinary.com/dvjgznbzm/video/upload/so_0,f_auto,q_auto/v1774820579/busta_verde_pastello_con_data_debossing_lzadff.jpg";
     const WATERMARK_VIDEO_URL = "https://res.cloudinary.com/dvjgznbzm/video/upload/v1775240241/1_Modifica_video_matrimonio_festa_notturna_online-video-cutter.com_d01pfq.mp4";
     
-    /* Nuova immagine stilizzata della location */
+    /* Immagini stilizzate */
     const LOCATION_IMG = "https://res.cloudinary.com/dvjgznbzm/image/upload/v1775293975/IMG_2668_zslsvj.png";
+    const PARTY_IMG    = "https://res.cloudinary.com/dvjgznbzm/image/upload/v1775304249/IMG_2907_jknv2c.png";
 
     const PHOTOS = [
       "https://res.cloudinary.com/dvjgznbzm/image/upload/f_auto,q_auto,w_1400/v1774796845/IMG_4307_withcw.jpg",
@@ -343,7 +343,7 @@
           </div>
           <div className="relative">
             <div className="absolute left-1/2 top-0 bottom-0 w-px" style={{ backgroundColor: "#A3B899", opacity: 0.4, transform: "translateX(-50%)" }} />
-            <div className="space-y-0">
+            <div className="space-y-0 relative z-10">
               {EVENTS.map((ev, i) => {
                 const isLeft  = i % 2 === 0;
                 const isParty = ev.moment === "Party & Live Band";
@@ -375,6 +375,12 @@
               })}
             </div>
           </div>
+          
+          {/* Immagine Party finale */}
+          <div className="mt-16 md:mt-24 flex justify-center w-full reveal">
+             <img src={PARTY_IMG} alt="Party e balli" className="w-full max-w-[220px] md:max-w-[280px] h-auto object-contain" style={{ mixBlendMode: 'multiply', opacity: 0.85, filter: 'contrast(1.1) sepia(0.2) hue-rotate(5deg)' }} />
+          </div>
+          
         </section>
       );
     }
@@ -387,7 +393,7 @@
       const [song, setSong]           = useState("");
       const [notes, setNotes]         = useState("");
       const [submitted, setSubmitted] = useState(false);
-      const inputStyle = { borderBottom: "1px solid #7a9070", color: "#4A4A4A" }; // Input resi più scuri/visibili
+      const inputStyle = { borderBottom: "1px solid #7a9070", color: "#4A4A4A" };
       return (
         <section className="py-28 md:py-40 px-6 max-w-xl mx-auto">
           <div className="text-center mb-14">
@@ -678,7 +684,6 @@
                 {/* Illustrazione Location - Formato esteso */}
                 <div className="w-full mb-10 relative rounded-lg overflow-hidden shadow-[0_8px_25px_-10px_rgba(163,184,153,0.4)] border border-[#A3B899]/40">
                   <img src={LOCATION_IMG} alt="Ristorante Golden Gate" className="w-full h-auto object-cover transform hover:scale-105 transition-transform duration-1000" style={{ filter: 'contrast(1.08) sepia(0.15)' }} />
-                  {/* Leggero filtro caldo per far intonare la foto al resto della grafica */}
                   <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: "#F4B9A1", mixBlendMode: "multiply", opacity: 0.15 }}></div>
                 </div>
                 
